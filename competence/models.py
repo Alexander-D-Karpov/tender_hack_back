@@ -18,10 +18,10 @@ class Company(models.Model):
     slug = models.SlugField(max_length=8, blank=True, unique=True)
 
     def competences(self) -> list[Competence]:
-        return [x.competence for x in CompanyCompetence.objects.filter(provider=self)]
+        return [x.competence for x in CompanyCompetence.objects.filter(company=self)]
 
     def get_absolute_url(self) -> str:
-        return reverse("provider", kwargs={"slug": self.slug})
+        return reverse("company", kwargs={"slug": self.slug})
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.slug:
@@ -36,11 +36,11 @@ class Company(models.Model):
 
 
 class CompanyCompetence(models.Model):
-    provider = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.provider.name + " " + self.competence.name
+        return self.company.name + " " + self.competence.name
 
 
 QUOTATION_SESSIONS_LIST = [
@@ -55,4 +55,16 @@ class QuotationSession(models.Model):
     documentation = models.FileField(upload_to="uploads/docs")
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=QUOTATION_SESSIONS_LIST, default="in_process")
+    product_amount = models.IntegerField(blank=False)
+    competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
+
+class CompanyQuotationSession(models.Model):
+    quotation = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.company.name + " " + self.quotation.name
