@@ -26,6 +26,8 @@ SECRET_KEY = "django-insecure-te6nh)4(n2(7p#blmstczu^vt!qm#a5ku*v%sx7$chzafwn_je
 DEBUG = True
 
 ALLOWED_HOSTS = ["10.10.117.135", "127.0.0.1"]
+CSRF_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOWED_ORIGINS = ["*"]
 
 if DEBUG:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
 
     "competence",
     "user",
+    "session_emulator"
 ]
 
 MIDDLEWARE = [
@@ -140,7 +143,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-ASGI_APPLICATION = "user.asgi.application"
+STREAM_SOCKET_GROUP_NAME = 'system_detail'
+ASGI_APPLICATION = 'tender_hack_back.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -149,3 +153,4 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
