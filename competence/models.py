@@ -20,10 +20,15 @@ class Company(models.Model):
     def competences(self) -> list[Competence]:
         return [x.competence for x in CompanyCompetence.objects.filter(company=self)]
 
+    def quotations(self) -> list:
+        return QuotationSession.objects.filter(company=self)
+
     def get_absolute_url(self) -> str:
         return reverse("company", kwargs={"slug": self.slug})
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         if not self.slug:
             slug = gen_int_slug(8)
             while Company.objects.filter(slug=slug).exists():
@@ -34,6 +39,9 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Companies"
+
 
 class CompanyCompetence(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -42,11 +50,11 @@ class CompanyCompetence(models.Model):
     def __str__(self):
         return self.company.name + " " + self.competence.name
 
+    class Meta:
+        unique_together = ("company", "competence")
 
-QUOTATION_SESSIONS_LIST = [
-    ("in_process", "В процессе"),
-    ("finished", "Закончена")
-]
+
+QUOTATION_SESSIONS_LIST = [("in_process", "В процессе"), ("finished", "Закончена")]
 
 
 class QuotationSession(models.Model):
@@ -54,17 +62,12 @@ class QuotationSession(models.Model):
     description = models.TextField(blank=True)
     documentation = models.FileField(upload_to="uploads/docs")
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=QUOTATION_SESSIONS_LIST, default="in_process")
+    status = models.CharField(
+        max_length=20, choices=QUOTATION_SESSIONS_LIST, default="in_process"
+    )
     product_amount = models.IntegerField(blank=False)
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
-
-class CompanyQuotationSession(models.Model):
-    quotation = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.company.name + " " + self.quotation.name
