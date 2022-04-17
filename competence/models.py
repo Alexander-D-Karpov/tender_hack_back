@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 
 from common.gen_slug import gen_int_slug
+from session_emulator.models import Lot
 
 
 class Competence(models.Model):
@@ -67,11 +68,15 @@ class QuotationSession(models.Model):
     )
     time = models.DateTimeField(auto_now_add=True)
     start_price = models.IntegerField(default=400)
+    current_price = models.IntegerField(default=400)
     product_amount = models.IntegerField(blank=False)
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+    def lots(self):
+        return Lot.objects.filter(comp_quotation_session__quotation_session=self)
 
     def participants(self):
         return CompanyQuotationSession.objects.filter(quotation_session=self)
@@ -85,3 +90,22 @@ class CompanyQuotationSession(models.Model):
 
     def __str__(self):
         return self.company.name + " " + self.quotation_session.name
+
+
+class CompanyPriceMin(models.Model):
+    price = models.FloatField()
+    quotation_session = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.company.name + " " + str(self.price)
+
+
+class CompanyPriceRange(models.Model):
+    min_price = models.FloatField()
+    max_price = models.FloatField()
+    quotation_session = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.company.name + " " + str(self.min_price) + " " + str(self.max_price)

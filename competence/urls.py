@@ -15,6 +15,11 @@ urlpatterns = [
         name="company",
     ),
     path(
+        "companies/<str:company__slug>/<int:quotation_session_id>",
+        views.CompanyPriceMinView.as_view(),
+        name="company",
+    ),
+    path(
         "quotations/",
         views.QuotationSessionListCreateView.as_view(),
         name="quotation_list",

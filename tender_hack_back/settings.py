@@ -26,8 +26,6 @@ SECRET_KEY = "django-insecure-te6nh)4(n2(7p#blmstczu^vt!qm#a5ku*v%sx7$chzafwn_je
 DEBUG = True
 
 ALLOWED_HOSTS = ["10.10.117.135", "127.0.0.1", "testserver"]
-CSRF_ALLOWED_ORIGINS = ["*"]
-CORS_ALLOWED_ORIGINS = ["*"]
 
 if DEBUG:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
@@ -36,7 +34,7 @@ else:
 
 MEDIA_URL = "/media/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 STATIC_URL = "/static/"
 
@@ -52,7 +50,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "channels",
     "corsheaders",
-
     "competence",
     "user",
     "session_emulator",

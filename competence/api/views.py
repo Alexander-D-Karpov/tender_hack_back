@@ -1,14 +1,31 @@
 from rest_framework import generics, viewsets
-from rest_framework.generics import UpdateAPIView
-from rest_framework.mixins import UpdateModelMixin
+from rest_framework.generics import (
+    UpdateAPIView,
+    RetrieveAPIView,
+    DestroyAPIView,
+    CreateAPIView,
+    get_object_or_404,
+    GenericAPIView,
+)
 from rest_framework.permissions import AllowAny
 from competence.api.serializers import (
     CompanySerializer,
     CreateQuotationSessionSerializer,
-    CompanyCreateSerializer, CompetenceSerializer, FullQuotationSessionSerializer, QuotationSessionSerializer,
+    CompanyCreateSerializer,
+    CompetenceSerializer,
+    FullQuotationSessionSerializer,
+    QuotationSessionSerializer,
     CompanyQuotationSessionSerializer,
+    CompanyPriceMinSerializer,
 )
-from competence.models import Company, QuotationSession, Competence, CompanyCompetence, CompanyQuotationSession
+from competence.models import (
+    Company,
+    QuotationSession,
+    Competence,
+    CompanyCompetence,
+    CompanyQuotationSession,
+    CompanyPriceMin,
+)
 
 
 class CompanyListCreateView(generics.ListCreateAPIView):
@@ -77,7 +94,10 @@ class CompetenceCompanyView(generics.ListAPIView):
     serializer_class = CompanySerializer
 
     def get_queryset(self):
-        return [x.company for x in CompanyCompetence.objects.filter(competence_id=self.kwargs["id"])]
+        return [
+            x.company
+            for x in CompanyCompetence.objects.filter(competence_id=self.kwargs["id"])
+        ]
 
 
 class QuotationSessionView(generics.ListAPIView):
@@ -94,6 +114,7 @@ class CompanyQuotationSessionView(viewsets.ModelViewSet, UpdateAPIView):
 
     queryset = CompanyQuotationSession.objects.all()
     serializer_class = CompanyQuotationSessionSerializer
+    lookup_field = "id"
 
     def get_queryset(self):
         return CompanyQuotationSession.objects.filter(id=self.kwargs["id"])
@@ -108,3 +129,40 @@ class CompanyQuotationSessionView(viewsets.ModelViewSet, UpdateAPIView):
         return CompanyQuotationSessionSerializer
 
 
+class MultipleFieldLookupMixin(object):
+    def get_object(self):
+        queryset = self.get_queryset()
+        queryset = self.filter_queryset(queryset)
+        filter = {}
+        for field in self.lookup_fields:
+            if self.kwargs.get(field, None):
+                filter[field] = self.kwargs[field]
+        obj = get_object_or_404(queryset, **filter)  # Lookup the object
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class CompanyPriceMinView(
+    MultipleFieldLookupMixin,
+    RetrieveAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+    GenericAPIView,
+):
+    serializer_class = CompanyPriceMinSerializer
+    queryset = CompanyPriceMin.objects.all()
+
+    lookup_fields = ["quotation_session_id", "company__slug"]
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
