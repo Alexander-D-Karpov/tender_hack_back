@@ -5,6 +5,11 @@ from competence.api import views
 urlpatterns = [
     path("companies/", views.CompanyListCreateView.as_view(), name="company_list"),
     path(
+        "companies/quotations/<int:id>",
+        views.CompanyQuotationSessionView.as_view({"get": "list", "post": "create"}),
+        name="company_quotation",
+    ),
+    path(
         "companies/<str:slug>",
         views.CompanyView.as_view({"get": "list", "post": "create"}),
         name="company",

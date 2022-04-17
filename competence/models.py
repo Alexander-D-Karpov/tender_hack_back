@@ -16,8 +16,6 @@ class Competence(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=200, blank=False)
     slug = models.SlugField(max_length=8, blank=True, unique=True)
-    is_bot = models.BooleanField(default=False)
-    min_cost = models.IntegerField(default=0)
 
     def competences(self) -> list[Competence]:
         return [x.competence for x in CompanyCompetence.objects.filter(company=self)]
@@ -67,6 +65,8 @@ class QuotationSession(models.Model):
     status = models.CharField(
         max_length=20, choices=QUOTATION_SESSIONS_LIST, default="in_process"
     )
+    time = models.DateTimeField(auto_now_add=True)
+    start_price = models.IntegerField(default=400)
     product_amount = models.IntegerField(blank=False)
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 
@@ -74,12 +74,14 @@ class QuotationSession(models.Model):
         return self.name
 
     def participants(self):
-        return [x.company for x in CompanyQuotationSession.objects.filter(quotation_session=self)]
+        return CompanyQuotationSession.objects.filter(quotation_session=self)
 
 
 class CompanyQuotationSession(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     quotation_session = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
+    is_bot = models.BooleanField(default=False)
+    min_cost = models.IntegerField(default=0)
 
     def __str__(self):
         return self.company.name + " " + self.quotation_session.name

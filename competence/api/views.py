@@ -1,12 +1,14 @@
 from rest_framework import generics, viewsets
+from rest_framework.generics import UpdateAPIView
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny
 from competence.api.serializers import (
     CompanySerializer,
-    GetQuotationSessionSerializer,
     CreateQuotationSessionSerializer,
-    CompanyCreateSerializer, CompetenceSerializer, FullQuotationSessionSerializer,
+    CompanyCreateSerializer, CompetenceSerializer, FullQuotationSessionSerializer, QuotationSessionSerializer,
+    CompanyQuotationSessionSerializer,
 )
-from competence.models import Company, QuotationSession, Competence, CompanyCompetence
+from competence.models import Company, QuotationSession, Competence, CompanyCompetence, CompanyQuotationSession
 
 
 class CompanyListCreateView(generics.ListCreateAPIView):
@@ -60,7 +62,7 @@ class QuotationSessionListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == "GET":
-            return GetQuotationSessionSerializer
+            return QuotationSessionSerializer
         else:
             return CreateQuotationSessionSerializer
 
@@ -84,3 +86,25 @@ class QuotationSessionView(generics.ListAPIView):
 
     def get_queryset(self):
         return QuotationSession.objects.filter(id=self.kwargs["id"])
+
+
+class CompanyQuotationSessionView(viewsets.ModelViewSet, UpdateAPIView):
+    pagination_class = None
+    permission_classes = (AllowAny,)
+
+    queryset = CompanyQuotationSession.objects.all()
+    serializer_class = CompanyQuotationSessionSerializer
+
+    def get_queryset(self):
+        return CompanyQuotationSession.objects.filter(id=self.kwargs["id"])
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def get_serializer_class(self):
+        return CompanyQuotationSessionSerializer
+
+

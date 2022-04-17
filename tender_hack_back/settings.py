@@ -36,10 +36,8 @@ else:
 
 MEDIA_URL = "/media/"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    "/var/www/static/",
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 STATIC_URL = "/static/"
 
 # Application definition
@@ -53,6 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "channels",
+    "corsheaders",
+
     "competence",
     "user",
     "session_emulator",
@@ -66,6 +66,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = "tender_hack_back.urls"
@@ -99,6 +101,7 @@ DATABASES = {
     }
 }
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

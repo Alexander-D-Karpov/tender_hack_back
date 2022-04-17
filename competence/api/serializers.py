@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from competence.models import Company, Competence, QuotationSession, CompanyCompetence
+from competence.models import Company, Competence, QuotationSession, CompanyCompetence, CompanyQuotationSession
 
 
 class CompetenceSerializer(serializers.ModelSerializer):
@@ -23,12 +23,13 @@ class GetCompetenceSerializer(serializers.ModelSerializer):
 class QuotationSessionSerializer(serializers.ModelSerializer):
     competence = CompetenceSerializer()
     url = serializers.HyperlinkedIdentityField(
-        view_name="quotation", lookup_field="id", allow_empty=True
+        view_name="quotation", lookup_field="id"
     )
 
     class Meta:
         model = QuotationSession
-        fields = ["name", "description", "documentation", "url", "product_amount", "competence"]
+        fields = ["name", "start_price", "time", "description", "documentation", "url", "product_amount", "competence"]
+        read_only_fields = ["time"]
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -42,8 +43,6 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = [
             "id",
-            "is_bot",
-            "min_cost",
             "name",
             "url",
             "competences",
@@ -51,8 +50,6 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "is_bot",
-            "min_cost",
             "url",
             "competences",
             "quotations",
@@ -60,20 +57,31 @@ class CompanySerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class CompanyQuotationSessionSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
+    url = serializers.HyperlinkedIdentityField(
+        view_name="company_quotation", lookup_field="id"
+    )
+
+    class Meta:
+        model = CompanyQuotationSession
+        fields = ["company", "is_bot", "min_cost", "url"]
+        read_only_fields = ["company", "url"]
+
+
 class FullQuotationSessionSerializer(serializers.ModelSerializer):
     competence = CompetenceSerializer()
     company = CompanySerializer()
-    participants = CompanySerializer(many=True)
+    participants = CompanyQuotationSessionSerializer(many=True)
 
     class Meta:
         model = QuotationSession
-        fields = ["name", "description", "documentation", "company", "status", "product_amount", "competence", "participants"]
+        fields = ["name", "start_price", "time", "description", "documentation", "company", "status", "product_amount", "competence",
+                  "participants"]
 
 
 class CompanyCreateSerializer(serializers.Serializer):
     name = serializers.CharField(allow_blank=False)
-    is_bot = serializers.BooleanField(default=False)
-    min_cost = serializers.IntegerField(min_value=0)
     competences = serializers.ListSerializer(
         child=serializers.IntegerField(),
         write_only=True,
@@ -90,23 +98,11 @@ class CompanyCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         company = Company.objects.create(
             name=validated_data["name"],
-            is_bot=validated_data["is_bot"],
-            min_cost=validated_data["min_cost"],
         )
         for x in validated_data["competences"]:
             if Competence.objects.filter(id=x).exists():
                 CompanyCompetence.objects.create(company=company, competence_id=x)
         return company
-
-
-class GetQuotationSessionSerializer(serializers.ModelSerializer):
-    company = CompanySerializer()
-    competence = CompetenceSerializer()
-
-    class Meta:
-        model = QuotationSession
-        fields = "__all__"
-        depth = 1
 
 
 class CreateQuotationSessionSerializer(serializers.ModelSerializer):

@@ -18,7 +18,7 @@ def create_lot(company_id: int, session: int, prise: int):
     company = Company.objects.get(id=company_id)
     quotation_session = QuotationSession.objects.get(id=session)
     comp_quotation_session = CompanyQuotationSession.objects.get_or_create(
-        company=company, quotation_session=quotation_session
+        company=company, quotation_session=quotation_session, is_bot=False
     )
     Lot.objects.create(comp_quotation_session=comp_quotation_session[0], price=prise)
 
@@ -55,4 +55,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"lot": message}))
+        await self.send(text_data=json.dumps({"lot": message, "bot": False}))
