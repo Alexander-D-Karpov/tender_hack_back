@@ -29,10 +29,6 @@ urlpatterns = (
             "api/auth/",
             include("user.urls"),
         ),
-        path(
-            "",
-            include("session_emulator.urls"),
-        ),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

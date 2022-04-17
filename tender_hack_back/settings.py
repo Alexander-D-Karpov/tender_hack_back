@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-te6nh)4(n2(7p#blmstczu^vt!qm#a5ku*v%sx7$chzafwn_je
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["10.10.117.135", "127.0.0.1"]
+ALLOWED_HOSTS = ["10.10.117.135", "127.0.0.1", "testserver"]
 CSRF_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOWED_ORIGINS = ["*"]
 
@@ -53,10 +53,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "channels",
-
     "competence",
     "user",
-    "session_emulator"
+    "session_emulator",
 ]
 
 MIDDLEWARE = [
@@ -149,14 +148,13 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STREAM_SOCKET_GROUP_NAME = 'system_detail'
-ASGI_APPLICATION = 'tender_hack_back.asgi.application'
+STREAM_SOCKET_GROUP_NAME = "system_detail"
+ASGI_APPLICATION = "tender_hack_back.asgi.application"
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
-

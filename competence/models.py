@@ -16,6 +16,8 @@ class Competence(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=200, blank=False)
     slug = models.SlugField(max_length=8, blank=True, unique=True)
+    is_bot = models.BooleanField(default=False)
+    min_cost = models.IntegerField(default=0)
 
     def competences(self) -> list[Competence]:
         return [x.competence for x in CompanyCompetence.objects.filter(company=self)]
@@ -70,6 +72,9 @@ class QuotationSession(models.Model):
 
     def __str__(self):
         return self.name
+
+    def participants(self):
+        return [x.company for x in CompanyQuotationSession.objects.filter(quotation_session=self)]
 
 
 class CompanyQuotationSession(models.Model):

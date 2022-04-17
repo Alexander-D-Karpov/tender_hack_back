@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class SessionEmulatorConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'session_emulator'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "session_emulator"
