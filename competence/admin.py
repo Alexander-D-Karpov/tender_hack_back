@@ -5,7 +5,7 @@ from competence.models import (
     Company,
     Competence,
     CompanyCompetence,
-    QuotationSession,
+    QuotationSession, CompanyQuotationSession,
 )
 
 
@@ -33,4 +33,9 @@ class RateAdmin(admin.ModelAdmin):
     list_display = ("name", "company", "status", "product_amount", "competence")
     list_filter = ("company", "status", "competence")
     search_fields = ("name", "competence")
+
+
+@admin.register(CompanyQuotationSession)
+class RateAdmin(admin.ModelAdmin):
+    list_display = ("id", "company", "quotation_session")
 

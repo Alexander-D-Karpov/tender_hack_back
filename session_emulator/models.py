@@ -1,13 +1,16 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
-from competence.models import QuotationSession, Company
+from competence.models import CompanyQuotationSession
 
 
 class Lot(models.Model):
-    quotation_session = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    comp_quotation_session = models.ForeignKey(CompanyQuotationSession, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
-    price = models.FloatField()
+    price = models.FloatField(blank=False, validators=[MinValueValidator(0.0)])
 
     class Meta:
         ordering = ('time',)
+
+    def __str__(self):
+        return self.comp_quotation_session.company.name + " " + str(self.price)

@@ -36,6 +36,12 @@ else:
 
 MEDIA_URL = "/media/"
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    "/var/www/static/",
+]
+STATIC_URL = "/static/"
+
 # Application definition
 
 INSTALLED_APPS = [

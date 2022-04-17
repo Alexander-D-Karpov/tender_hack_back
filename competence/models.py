@@ -71,3 +71,10 @@ class QuotationSession(models.Model):
     def __str__(self):
         return self.name
 
+
+class CompanyQuotationSession(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    quotation_session = models.ForeignKey(QuotationSession, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.company.name + " " + self.quotation_session.name
